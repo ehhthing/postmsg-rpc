@@ -7,8 +7,12 @@ export default function expose (funcName, func, opts) {
   const targetOrigin = opts.targetOrigin || '*'
   const getMessageData = opts.getMessageData || ((event) => event.data)
   const isCallback = opts.isCallback || false
+  const allowOrigins = opts.allowOrigins || ((origin) => true)
 
   const handler = function () {
+    if (!allowOrigins(arguments[1])) {
+      throw new Error("Origin not allowed");
+    }
     const data = getMessageData.apply(null, arguments)
     if (!data) return
     if (data.sender !== 'postmsg-rpc/client' || data.func !== funcName) return
